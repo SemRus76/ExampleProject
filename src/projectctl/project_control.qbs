@@ -8,8 +8,8 @@ Product
     destinationDirectory: "./bin"
 
     Depends { name: "cpp" }
-//    Depends { name: "SharedLib" }
-//    Depends { name: "Yaml" }
+    Depends { name: "SharedLib" }
+    Depends { name: "Yaml" }
     Depends { name: "Qt"; submodules: ["core", "network", "sql"]}
 
     cpp.defines: project.cppDefines

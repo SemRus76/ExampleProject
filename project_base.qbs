@@ -49,7 +49,8 @@ Project
             def.push("CONFIG_DIR=\"AppData/projectExample\"");
         }
         else
-            def.push("CONFIG_DIR=\"/etc/projectExample\"");
+            // def.push("CONFIG_DIR=\"/etc/projectExample\"");
+            def.push("CONFIG_DIR=\"~/Repository/ExampleProject/config\"");
 
         return def;
     }

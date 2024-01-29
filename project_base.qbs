@@ -45,9 +45,7 @@ Project
 
         if (qbs.targetOS.contains("windows")
             && qbs.toolchain && qbs.toolchain.contains("mingw"))
-        {
-            def.push("CONFIG_DIR=\"AppData/projectExample\"");
-        }
+            def.push("CONFIG_DIR=\"AppData/Roaming/projectExample\"");
         else
             // def.push("CONFIG_DIR=\"/etc/projectExample\"");
             def.push("CONFIG_DIR=\"~/Repository/ExampleProject/config\"");

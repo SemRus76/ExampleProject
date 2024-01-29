@@ -3,6 +3,10 @@
 #include <QStringList>
 
 #include "config/appl_conf.h"
+#include "config/logger_conf.h"
+#include "shared/logger/logger.h"
+#include "shared/logger/format.h"
+#include "logger/config.h"
 
 using namespace std;
 int main(int argc, char* argv[])
@@ -41,17 +45,33 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    alog::logger().start();
+
+//    alog::configExtendedSavers();
+    alog::configDefaultSaver();
+    alog::printSaversInfo();
+
+    alog::logger().removeSaverStdOut();
+    alog::logger().removeSaverStdErr();
+//    alog::logger().addSaverStdOut(alog::Level::Info);
+
     QString idAppl = QString();
     config::base().getValue("application.id", idAppl); // Нельзя не инициализированные переменные
 
     QString nameAppl = QString();
     config::base().getValue("application.name", nameAppl);
 
-    cout << idAppl.toStdString() << " - " << nameAppl.toStdString() << endl;
+    QString pathSaver = QString();
+    config::base().getValue("logger.file", pathSaver);
 
-    QUuidEx newId = QUuidEx::createUuid();
-    config::base().setValue("application.id", newId);
-//    config::base().saveFile(config::base().filePath());
+    log_info << "Hello World " << idAppl.toStdString() << " - " << nameAppl.toStdString();
+    log_info << "Logger file: " << pathSaver.toStdString();
+
+    for (int i = 0;; ++i)
+    {
+        log_info << "Hello - " << i;
+        this_thread::sleep_for(chrono::seconds(1));
+    }
 
     return 0;
 }

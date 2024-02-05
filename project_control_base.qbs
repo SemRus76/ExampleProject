@@ -3,7 +3,7 @@ import "project_base.qbs" as ProjectBase
 
 ProjectBase
 {
-    name: "Project (Base)"
+    name: "Project (Server)"
 
     references:[
         "src/projectctl/project_control.qbs",

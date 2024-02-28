@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QString>
 #include <QStringList>
+#include <QObject>
 
 #include "config/appl_conf.h"
 #include "config/logger_conf.h"
@@ -51,7 +52,6 @@ int main(int argc, char* argv[])
     alog::logger().addSaverStdOut(alog::Level::Debug2);
 
     QString configFile = config::qdir() + "/example.conf";
-
     config::dirExpansion(configFile);
     if (!QFile::exists(configFile))
     {
@@ -92,12 +92,15 @@ int main(int argc, char* argv[])
     log_info_m << "Hello World " << idAppl.toStdString() << " - " << nameAppl.toStdString();
     log_info_m << "Logger file: " << pathSaver.toStdString();
 
+//    QObject::connect(&config::observerBase(), &config::ObserverBase::changed,
+//                      nullptr, [&](){});
+
     for (int i = 0;; ++i)
     {
-        log_error_m << "Hello Application " << i;
-        log_warn_m << "Hello Video " << i;
-        log_info_m << "Hello Transport " << i;
-        log_verbose_m << "Hello Scrum " << i;
+        log_error_m   << "Hello Application " << i;
+        log_warn_m    << "Hello Video "       << i;
+        log_info_m    << "Hello Transport "   << i;
+        log_verbose_m << "Hello Scrum "       << i;
         this_thread::sleep_for(chrono::seconds(1));
     }
 

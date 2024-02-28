@@ -4,6 +4,7 @@ import QbsUtl
 Product {
     name: "SharedLib"
     targetName: "shared"
+    condition: true;
 
     type: "staticlibrary"
 

@@ -1,9 +1,11 @@
 import qbs
 import QbsUtl
 
-Product
+Application
 {
-    type: "application"
+    name: "Server"
+//    type: "application"
+    condition: true;
     consoleApplication: true
     destinationDirectory: "./bin"
 
@@ -12,7 +14,17 @@ Product
     Depends { name: "Yaml" }
     Depends { name: "Qt"; submodules: ["core", "network", "sql"]}
 
-    cpp.defines: project.cppDefines
+    property var cppDefinesProduct:
+    {
+        var def = project.cppDefines;
+
+        def.push("IMAGE_SIZE=1920")
+
+        return def
+    }
+
+    cpp.defines: cppDefinesProduct;
+
     cpp.cxxLanguageVersion: project.cxxLanguageVersion
 
     // Декларация для подавления Qt warning-ов
@@ -21,4 +33,7 @@ Product
     files: [
         "main.cpp",
     ]
+    qbs.install: true
+    qbs.installDir: "bin"
+
 }

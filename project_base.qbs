@@ -45,10 +45,18 @@ Project
 
         if (qbs.targetOS.contains("windows")
             && qbs.toolchain && qbs.toolchain.contains("mingw"))
+        {
             def.push("CONFIG_DIR=\"AppData/Roaming/projectExample\"");
+            def.push("CONFIG_DIR_CLIENT=\"AppData/Roaming/projectExample\"")
+        }
         else
+        {
             // def.push("CONFIG_DIR=\"/etc/projectExample\"");
             def.push("CONFIG_DIR=\"~/Repository/ExampleProject/config\"");
+
+            // def.push("CONFIG_DIR_CLIENT=\"~/.config/projectExample\"");
+            def.push("CONFIG_DIR_CLIENT=\"~/Repository/ExampleProject/config\"");
+        }
 
         return def;
     }

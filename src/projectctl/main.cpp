@@ -53,8 +53,6 @@ using namespace pproto::transport;
 using namespace std;
 int main(int argc, char* argv[])
 {
-    Q_UNUSED(argv)
-    Q_UNUSED(argc)
 
     alog::logger().start();
     alog::logger().addSaverStdOut(alog::Level::Debug2);

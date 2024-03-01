@@ -8,6 +8,7 @@ ProjectBase
 
     references:[
         "src/projectctl/project_control.qbs",
+        "src/projectterm/project_terminal.qbs",
         "src/shared/shared.qbs",
         "src/yaml/yaml.qbs",
         "src/rapidjson/rapidjson.qbs",
@@ -15,14 +16,14 @@ ProjectBase
         "src/commands/commands.qbs",
     ]
 
-    InstallPackage
-    {
-        name: "Package"
-        type: "application"
+//    InstallPackage
+//    {
+//        name: "Package"
+//        type: "application"
 
-//        type: "tar"
-        archiver.name: "Package"
-        archiver.type: "tar"
-        Depends {name: "Server"}
-    }
+////        type: "tar"
+//        archiver.name: "Package"
+//        archiver.type: "tar"
+//        Depends {name: "Server"}
+//    }
 }

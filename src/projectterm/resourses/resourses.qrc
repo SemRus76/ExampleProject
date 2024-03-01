@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/config">
+        <file>client.conf</file>
+        <file>client.logger.conf</file>
+    </qresource>
+</RCC>

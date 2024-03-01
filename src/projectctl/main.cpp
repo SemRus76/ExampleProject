@@ -9,38 +9,46 @@
 #include "shared/logger/format.h"
 #include "logger/config.h"
 
-#define log_error_m   alog::logger().error   (alog_line_location, "Application")
-#define log_warn_m    alog::logger().warn    (alog_line_location, "VideoFirst")
-#define log_info_m    alog::logger().info    (alog_line_location, "Transport")
-#define log_verbose_m alog::logger().verbose (alog_line_location, "Application")
-#define log_debug_m   alog::logger().debug   (alog_line_location, "Application")
-#define log_debug2_m  alog::logger().debug2  (alog_line_location, "Application")
+#include "pproto/transport/tcp.h"
+#include "pproto/transport/local.h"
+
+#include "application.h"
+
+#define log_error_m   alog::logger().error   (alog_line_location, "MAIN")
+#define log_warn_m    alog::logger().warn    (alog_line_location, "MAIN")
+#define log_info_m    alog::logger().info    (alog_line_location, "MAIN")
+#define log_verbose_m alog::logger().verbose (alog_line_location, "MAIN")
+#define log_debug_m   alog::logger().debug   (alog_line_location, "MAIN")
+#define log_debug2_m  alog::logger().debug2  (alog_line_location, "MAIN")
 
 // info - Общий уровень логирования, чаще всего предполагае вывод только информационных и error сообщений
 // debug - Уровень логирования разработки, который позволяет отследить поведение модулей системы на ходу
 // debug2 - То же что и debug, но подробнее
 
-/*
- * Тренировка конфига и логгера
- *
- * Необходимо реализовать функцию вычесления ряда чисел Фибоначчи.
- * Номер последовательности ДО которого происходит вычесление задается в конфиге
- * При изменении конфига - должен запускаться процесс перерасчета
- *
- * Сам процесс расчета делится на 3 этапа: подготовительный, вычислительный и результирующий
- *
- * Этапы подготовки и результата выводятся в один лог файл уровнем info
- * Этап вычисления выводится во второй лог файл уровнем debug
- *
- * Все три этапа должны так же попадать в один общий лог с уровнем debug
- *
- * На этапе подготовки необходимо вывести сообщение о том какое число было получено из конфига
- * и какие числа берутся для позиций 0 и 1
- *
- * На этапе результата необходимо вывести сообщение, содержащее порядковый порядковый номер и
- * полученный результат.
- *
-*/
+void stopProgram()
+{
+    #define STOP_THREAD(THREAD_FUNC, NAME, TIMEOUT) \
+        if (!THREAD_FUNC.stop(TIMEOUT * 1000)) { \
+            log_info << "Thread '" NAME "': Timeout expired, thread will be terminated"; \
+            THREAD_FUNC.terminate(); \
+        }
+
+
+//    STOP_THREAD(pproto::transport::tcp::listener(), "TransportSocket", 15)
+
+    #undef STOP_THREAD
+
+    pproto::transport::tcp::listener().close();
+    config::observerBase().stop();
+
+    alog::logger().flush();
+    alog::logger().waitingFlush();
+
+    alog::stop();
+}
+
+//using namespace pproto;
+using namespace pproto::transport;
 
 using namespace std;
 int main(int argc, char* argv[])
@@ -80,32 +88,38 @@ int main(int argc, char* argv[])
     alog::logger().removeSaverStdErr();
     alog::logger().addSaverStdOut(alog::Level::Info);
 
-    QString idAppl = QString();
-    config::base().getValue("application.id", idAppl); // Нельзя не инициализированные переменные
+    // Запуск всех потоков обслуживания приложения
 
-    QString nameAppl = QString();
-    config::base().getValue("application.name", nameAppl);
+    QString addr {"127.0.0.1"};
+    config::base().getValue("listener.socket.address", addr);
+    QHostAddress address {addr};
 
-    QString pathSaver = QString();
-    config::base().getValue("logger.file", pathSaver);
+    int port {20102};
+    config::base().getValue("listener.socket.port", port);
 
-    log_info_m << "Hello World " << idAppl.toStdString() << " - " << nameAppl.toStdString();
-    log_info_m << "Logger file: " << pathSaver.toStdString();
-
-//    QObject::connect(&config::observerBase(), &config::ObserverBase::changed,
-//                      nullptr, [&](){});
-
-    for (int i = 0;; ++i)
+    if (!pproto::transport::tcp::listener().init({address, port}))
     {
-        log_error_m   << "Hello Application " << i;
-        log_warn_m    << "Hello Video "       << i;
-        log_info_m    << "Hello Transport "   << i;
-        log_verbose_m << "Hello Scrum "       << i;
-        this_thread::sleep_for(chrono::seconds(1));
+        log_error_m << "Error init socket. Close program";
+        stopProgram();
+        return 1;
     }
 
-    config::observerBase().stop();
-    alog::logger().stop();
+    // Запуск самого приложения
+    Application appl {argc, argv};
 
+    if (!appl.init())
+    {
+        log_error_m << "Error start Program. Close program";
+        stopProgram();
+        return 1;
+    }
+
+    chk_connect_q(&tcp::listener(), &tcp::Listener::message,
+                  &appl           , &Application::message  )
+
+
+    appl.exec();
+
+    stopProgram();
     return 0;
 }

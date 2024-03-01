@@ -1,15 +1,18 @@
 import qbs
 import QbsUtl
 
-Application
+Product
 {
     name: "Server"
-//    type: "application"
+    type: "application"
     condition: true;
     consoleApplication: true
     destinationDirectory: "./bin"
 
     Depends { name: "cpp" }
+    Depends { name: "Commands"}
+    Depends { name: "PProto"}
+    Depends { name: "RapidJson"}
     Depends { name: "SharedLib" }
     Depends { name: "Yaml" }
     Depends { name: "Qt"; submodules: ["core", "network", "sql"]}
@@ -31,6 +34,8 @@ Application
     cpp.systemIncludePaths: Qt.core.cpp.includePaths
 
     files: [
+        "application.cpp",
+        "application.h",
         "main.cpp",
     ]
     qbs.install: true

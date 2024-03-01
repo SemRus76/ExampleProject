@@ -35,12 +35,12 @@ Project
             "VERSION_PROJECT_PATCH=" + projectVersion[3],
             "GIT_REVISION=\"" + projectGitRevision + "\"",
             "QDATASTREAM_VERSION=QDataStream::Qt_5_12",
-//            "QDATASTREAM_BYTEORDER=QDataStream::LittleEndian",
-//            "PPROTO_VERSION_LOW=0",
-//            "PPROTO_VERSION_HIGH=0",
-//            "PPROTO_JSON_SERIALIZE",
-//            "PPROTO_QBINARY_SERIALIZE",
-//            "PPROTO_UDP_SIGNATURE=\"PPDM\"",
+            "QDATASTREAM_BYTEORDER=QDataStream::LittleEndian",
+            "PPROTO_VERSION_LOW=0",
+            "PPROTO_VERSION_HIGH=0",
+            "PPROTO_JSON_SERIALIZE",
+            "PPROTO_QBINARY_SERIALIZE",
+            "PPROTO_UDP_SIGNATURE=\"PPDM\"",
         ];
 
         if (qbs.targetOS.contains("windows")

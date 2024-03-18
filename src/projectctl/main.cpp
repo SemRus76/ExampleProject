@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QString>
 #include <QStringList>
+#include <QNetworkProxy>
 #include <QObject>
 
 #include "config/appl_conf.h"
@@ -20,6 +21,17 @@
 #define log_verbose_m alog::logger().verbose (alog_line_location, "MAIN")
 #define log_debug_m   alog::logger().debug   (alog_line_location, "MAIN")
 #define log_debug2_m  alog::logger().debug2  (alog_line_location, "MAIN")
+
+/*
+ * Домашнее задание - Необходимо реализовать простой чат, с возможностью подключения
+ * ЛЮБОГО кол-ва участников и возможностью общения клиентов между ними.
+ * Каждый подключившийся характеризуется своим никнеймом (без указанного никнейма
+ * не давать клиенту подключаться к серверу).
+ *
+ * При отправке сообщения любым клиентом, сервер, помимо рассылки этого сообщения
+ * всем остальным клиентам, должен написать в лог сообщение следующего содержания:
+ * Никнейм клиента - Текст Сообщения
+*/
 
 // info - Общий уровень логирования, чаще всего предполагае вывод только информационных и error сообщений
 // debug - Уровень логирования разработки, который позволяет отследить поведение модулей системы на ходу
@@ -86,11 +98,26 @@ int main(int argc, char* argv[])
     alog::logger().removeSaverStdErr();
     alog::logger().addSaverStdOut(alog::Level::Info);
 
-    // Запуск всех потоков обслуживания приложения
+    if (!pproto::command::checkUnique())
+    {
+        stopProgram();
+        return 1;
+    }
 
-    QString addr {"127.0.0.1"};
-    config::base().getValue("listener.socket.address", addr);
-    QHostAddress address {addr};
+    if (!pproto::error::checkUnique())
+    {
+        stopProgram();
+        return 1;
+    }
+
+    // Создание объекта приложения
+    Application appl {argc, argv};
+
+    QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
+
+    // Запуск всех потоков обслуживания приложения
+    QHostAddress address {"0.0.0.0"};
+    config::readHostAddress("listener.socket.address", address);
 
     int port {20102};
     config::base().getValue("listener.socket.port", port);
@@ -102,9 +129,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // Запуск самого приложения
-    Application appl {argc, argv};
-
+    // Инициализация объекта приложения
     if (!appl.init())
     {
         log_error_m << "Error start Program. Close program";
@@ -115,6 +140,8 @@ int main(int argc, char* argv[])
     chk_connect_q(&tcp::listener(), &tcp::Listener::message,
                   &appl           , &Application::message  )
 
+    chk_connect_q(&tcp::listener(), &tcp::Listener::socketConnected,
+                  &appl           , &Application::socketConnected)
 
     appl.exec();
 

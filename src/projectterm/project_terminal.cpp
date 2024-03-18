@@ -9,15 +9,18 @@
 
 #include <QDir>
 #include <QString>
+#include <QApplication>
+#include <QNetworkProxy>
+#include "widgets/main_window.h"
 
 #include <string>
 
-#define log_error_m   alog::logger().error   (alog_line_location, "MAIN")
-#define log_warn_m    alog::logger().warn    (alog_line_location, "MAIN")
-#define log_info_m    alog::logger().info    (alog_line_location, "MAIN")
-#define log_verbose_m alog::logger().verbose (alog_line_location, "MAIN")
-#define log_debug_m   alog::logger().debug   (alog_line_location, "MAIN")
-#define log_debug2_m  alog::logger().debug2  (alog_line_location, "MAIN")
+#define log_error_m   alog::logger().error   (alog_line_location, "DESKTOP MAIN")
+#define log_warn_m    alog::logger().warn    (alog_line_location, "DESKTOP MAIN")
+#define log_info_m    alog::logger().info    (alog_line_location, "DESKTOP MAIN")
+#define log_verbose_m alog::logger().verbose (alog_line_location, "DESKTOP MAIN")
+#define log_debug_m   alog::logger().debug   (alog_line_location, "DESKTOP MAIN")
+#define log_debug2_m  alog::logger().debug2  (alog_line_location, "DESKTOP MAIN")
 
 using namespace std;
 using namespace pproto;
@@ -25,12 +28,11 @@ using namespace pproto::transport;
 
 int main (int argc, char* argv[])
 {
+    Q_UNUSED(argc)
+    Q_UNUSED(argv)
+
     alog::logger().start();
     alog::logger().addSaverStdOut(alog::Level::Debug2);
-
-
-//    config::base().setReadOnly(true);
-//    config::base().setSaveDisabled(true);
 
     string cfgDir {CONFIG_DIR_CLIENT};
 
@@ -82,5 +84,49 @@ int main (int argc, char* argv[])
     alog::logger().removeSaverStdErr();
     alog::logger().addSaverStdOut(alog::Level::Info);
 
-    return 0;
+    QApplication application(argc, argv);
+
+    application.setApplicationName(u8"Клиент Desktop");
+    application.setApplicationVersion(u8"0.0.1");
+
+    // Устанавливаем текущую директорию. Эта конструкция работает только
+    // когда создан экземпляр QCoreApplication.
+    if (QDir::setCurrent(QCoreApplication::applicationDirPath()))
+    {
+        log_debug << "Set work directory: " << QCoreApplication::applicationDirPath();
+    }
+    else
+    {
+        log_error << "Failed set work directory";
+//        stopProgram();
+        return 1;
+    }
+
+    if (!pproto::command::checkUnique())
+    {
+//        stopProgram();
+        return 1;
+    }
+
+    if (!pproto::error::checkUnique())
+    {
+//        stopProgram();
+        return 1;
+    }
+
+    QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
+
+    MainWindow clientWindow;
+//    if (clientWindow.init())
+//    {
+//        log_error << "Failed init Main Window";
+//        stopProgram();
+//        return 1;
+//    }
+
+    clientWindow.show();
+    int exitCode = application.exec();
+    clientWindow.close();
+
+    return exitCode;
 }

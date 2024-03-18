@@ -38,9 +38,9 @@ Project
             "QDATASTREAM_BYTEORDER=QDataStream::LittleEndian",
             "PPROTO_VERSION_LOW=0",
             "PPROTO_VERSION_HIGH=0",
-            "PPROTO_JSON_SERIALIZE",
             "PPROTO_QBINARY_SERIALIZE",
-            "PPROTO_UDP_SIGNATURE=\"PPDM\"",
+//            "PPROTO_JSON_SERIALIZE",
+            "PPROTO_UDP_SIGNATURE=\"Project\"",
         ];
 
         if (qbs.targetOS.contains("windows")

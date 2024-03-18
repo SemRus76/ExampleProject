@@ -32,6 +32,25 @@ Product
         ]
     }
 
+    Group {
+        name: "Widgets"
+        prefix: "widgets/"
+        files: [
+            "main_window.cpp",
+            "main_window.h",
+            "main_window.ui",
+        ]
+    }
+
+    Group {
+        name: "System Classes"
+        prefix: "systemTerm/"
+        files: [
+            "connect_system.cpp",
+            "connect_system.h",
+        ]
+    }
+
     files: [
         "project_terminal.cpp",
 

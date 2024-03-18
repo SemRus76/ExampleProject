@@ -22,7 +22,7 @@ bool Application::init()
     }
     _idAppl = idAppl;
 
-    QString nameAppl = QString();
+    QString nameAppl;
     if (!config::base().getValue("application.name", nameAppl))
     {
         log_error_m << "Error init application - " << pproto::error::init_appl_name.description;
@@ -30,7 +30,7 @@ bool Application::init()
     }
     _nameAppl = nameAppl;
 
-    QString pathSaver = QString();
+    QString pathSaver;
     if (!config::base().getValue("logger.file", pathSaver))
     {
         log_error_m << "Error init application - " << pproto::error::init_appl_saverPath.description;
@@ -40,7 +40,7 @@ bool Application::init()
     #define FUNC_REGISTRATION(COMMAND) \
         _funcInvoker.registration(command:: COMMAND, &Application::command_##COMMAND, this);
 
-
+    FUNC_REGISTRATION(ServerInformation)
 
     #undef FUNC_REGISTRATION
 
@@ -51,6 +51,14 @@ bool Application::init()
 void Application::deInit()
 {
 
+}
+
+void Application::socketConnected(pproto::SocketDescriptor socketDescript)
+{
+//    data::ServerInformation serverInformation;
+//    Message::Ptr m = createMessage(serverInformation);
+//    m->appendDestinationSocket(socketDescript);
+//    transport::tcp::listener().send(m);
 }
 
 void Application::message(const pproto::Message::Ptr& message)
@@ -69,3 +77,29 @@ void Application::message(const pproto::Message::Ptr& message)
         _funcInvoker.call(message, fr);
     }
 }
+
+void Application::command_ServerInformation(const Message::Ptr& message)
+{
+    if (message->type() == Message::Type::Command)
+    {
+        data::ServerInformation serverInformation;
+        readFromMessage(message, serverInformation);
+
+        serverInformation.name = _nameAppl;
+
+        QHostAddress addr {"127.0.0.1"};
+        config::readHostAddress("listener.socket.address", addr);
+        serverInformation.address = addr.toString();
+
+        Message::Ptr answer = message->cloneForAnswer();
+        writeToMessage(serverInformation, answer);
+        transport::tcp::listener().send(answer);
+    }
+}
+
+
+
+
+
+
+

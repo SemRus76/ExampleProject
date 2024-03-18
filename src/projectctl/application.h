@@ -4,6 +4,9 @@
 #include "commands/error.h"
 
 #include "pproto/commands/pool.h"
+#include "pproto/serialize/functions.h"
+#include "pproto/transport/tcp.h"
+#include "pproto/transport/local.h"
 #include "pproto/func_invoker.h"
 
 #include "config/appl_conf.h"
@@ -27,7 +30,11 @@ public:
 
 public slots:
 
+    void socketConnected(pproto::SocketDescriptor socketDescript);
     void message(const pproto::Message::Ptr&);
+
+    // Функции обработки команд
+    void command_ServerInformation(const pproto::Message::Ptr&);
 
 private:
 

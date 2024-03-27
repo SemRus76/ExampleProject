@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>338</width>
-    <height>290</height>
+    <width>824</width>
+    <height>530</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="Widget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,2">
     <item>
      <widget class="QGroupBox" name="InformationServer">
       <property name="title">
@@ -79,6 +79,62 @@
       </layout>
      </widget>
     </item>
+    <item>
+     <widget class="QGroupBox" name="ChatLayout">
+      <property name="title">
+       <string>Чат</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,5,1">
+       <item>
+        <widget class="QGroupBox" name="UserSettingsLayout">
+         <property name="title">
+          <string>Пользователь</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
+          <item>
+           <layout class="QHBoxLayout" name="NickNameLayout" stretch="1,4">
+            <item>
+             <widget class="QLabel" name="NickNameLabel">
+              <property name="text">
+               <string>Никнейм:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="nick"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="chat">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="ChatMessageLayout" stretch="4,1">
+         <item>
+          <widget class="QLineEdit" name="message"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSendMessage">
+           <property name="text">
+            <string>Отправить</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -86,7 +142,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>338</width>
+     <width>824</width>
      <height>22</height>
     </rect>
    </property>

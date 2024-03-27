@@ -28,6 +28,16 @@ extern const QUuidEx CtlDiscovery;
 */
 extern const QUuidEx ServerInformation;
 
+/**
+  Тело собщения чата
+*/
+extern const QUuidEx ChatMessage;
+
+/**
+  Команда истории чата
+*/
+extern const QUuidEx ChatHistory;
+
 
 } // namespace command
 
@@ -66,6 +76,40 @@ struct ServerInformation : Data<&command::ServerInformation,
 
     // Адрес сервера
     QString address;
+
+    DECLARE_B_SERIALIZE_FUNC
+};
+
+struct ChatMessage : Data<&command::ChatMessage,
+                           Message::Type::Command,
+                           Message::Type::Answer>
+{
+    typedef container_ptr<ChatMessage> Ptr;
+
+    // Время
+    QDateTime date;
+
+    // Имя пользователя
+    QString nickname;
+
+    // Текст сообщения
+    QString text;
+
+
+    DECLARE_B_SERIALIZE_FUNC
+};
+
+struct ChatHistory : Data<&command::ChatHistory,
+                           Message::Type::Command,
+                           Message::Type::Answer>
+{
+    typedef container_ptr<ChatHistory> Ptr;
+
+    /// Тело запроса
+
+    /// Тело ответа
+
+    QList<ChatMessage::Ptr> history;
 
     DECLARE_B_SERIALIZE_FUNC
 };

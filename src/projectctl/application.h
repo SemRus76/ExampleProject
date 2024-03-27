@@ -19,6 +19,7 @@
 
 using namespace std;
 using namespace pproto;
+using namespace pproto::command;
 class Application : public QCoreApplication
 {
     Q_OBJECT
@@ -35,6 +36,8 @@ public slots:
 
     // Функции обработки команд
     void command_ServerInformation(const pproto::Message::Ptr&);
+    void command_ChatMessage      (const pproto::Message::Ptr&);
+    void command_ChatHistory      (const pproto::Message::Ptr&);
 
 private:
 
@@ -43,6 +46,8 @@ private:
 
     atomic_bool _stop = {false};
     FunctionInvoker _funcInvoker;
+
+    QList<pproto::data::ChatMessage::Ptr> _historyMessage;
 
 };
 

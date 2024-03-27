@@ -4,6 +4,7 @@
 using namespace pproto;
 using namespace pproto::transport;
 using namespace pproto::transport::tcp;
+using namespace pproto::command;
 
 #define log_error_m   alog::logger().error   (alog_line_location, "Main_Window")
 #define log_warn_m    alog::logger().warn    (alog_line_location, "Main_Window")
@@ -23,8 +24,12 @@ MainWindow::MainWindow(QWidget *parent) :
         _funcInvoker.registration(command:: COMMAND, &MainWindow::command_##COMMAND, this);
 
     FUNC_REGISTRATION(ServerInformation)
+    FUNC_REGISTRATION(ChatMessage)
+    FUNC_REGISTRATION(ChatHistory)
 
     #undef FUNC_REGISTRATION
+
+    ui->btnSendMessage->setDisabled(true);
 }
 
 MainWindow::~MainWindow()
@@ -57,6 +62,51 @@ void MainWindow::command_ServerInformation(const pproto::Message::Ptr& message)
 
         ui->nameServerInfo  ->setText(serverInformation.name   );
         ui->adressServerInfo->setText(serverInformation.address);
+
+        if (_serverSocket->isConnected())
+        {
+            pproto::data::ChatHistory request;
+            pproto::Message::Ptr message = createMessage(request);
+            message->setType(pproto::Message::Type::Command);
+            _serverSocket->send(message);
+        }
+    }
+}
+
+void MainWindow::command_ChatMessage(const pproto::Message::Ptr& message)
+{
+    pproto::data::ChatMessage response;
+    readFromMessage(message, response);
+
+    QString line = "[";
+    line += response.date.toString("dd.MM.yyyy hh:mm:ss");
+    line += "] ";
+    line += response.nickname;
+    line += " : ";
+    line += response.text;
+
+    ui->chat->append(line);
+}
+
+void MainWindow::command_ChatHistory(const pproto::Message::Ptr& message)
+{
+    if (message->type() == Message::Type::Answer)
+    {
+        pproto::data::ChatHistory response;
+        readFromMessage(message, response);
+
+        for (int i = 0; i < response.history.size(); ++i)
+        {
+            QString line = "[";
+            line += response.history[i]->date.toString("dd.MM.yyyy hh:mm:ss");
+            line += "] ";
+            line += response.history[i]->nickname;
+            line += " : ";
+            line += response.history[i]->text;
+
+            ui->chat->append(line);
+        }
+        ui->btnSendMessage->setDisabled(false);
     }
 }
 
@@ -112,5 +162,33 @@ void MainWindow::on_btnConnectToServer_clicked()
 
     _serverSocket->send(msg);
     log_info_m << "Send request to Server Information";
+}
+
+
+void MainWindow::on_btnSendMessage_clicked()
+{
+    if (!_serverSocket->isConnected())
+        // TODO По-хорошему, нужно сообщить ползователю, что связь потеряна
+        return;
+
+    if (ui->nick->text().isEmpty())
+        // TODO По-хорошему, нужно сообщить ползователю, что-бы он написал ник
+        return;
+
+    if (ui->message->text().isEmpty())
+        // TODO По-хорошему, нужно сообщить ползователю, что-бы он написал сообщение
+        return;
+
+    pproto::data::ChatMessage chatMessage;
+
+    chatMessage.date = QDateTime::currentDateTime();
+    chatMessage.nickname = ui->nick->text();
+    chatMessage.text = ui->message->text();
+
+    pproto::Message::Ptr message = createMessage(chatMessage);
+    message->setType(pproto::Message::Type::Command);
+
+    _serverSocket->send(message);
+    ui->message->clear();
 }
 

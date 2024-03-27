@@ -41,6 +41,8 @@ bool Application::init()
         _funcInvoker.registration(command:: COMMAND, &Application::command_##COMMAND, this);
 
     FUNC_REGISTRATION(ServerInformation)
+    FUNC_REGISTRATION(ChatMessage);
+    FUNC_REGISTRATION(ChatHistory);
 
     #undef FUNC_REGISTRATION
 
@@ -55,6 +57,7 @@ void Application::deInit()
 
 void Application::socketConnected(pproto::SocketDescriptor socketDescript)
 {
+    Q_UNUSED(socketDescript)
 //    data::ServerInformation serverInformation;
 //    Message::Ptr m = createMessage(serverInformation);
 //    m->appendDestinationSocket(socketDescript);
@@ -93,6 +96,42 @@ void Application::command_ServerInformation(const Message::Ptr& message)
 
         Message::Ptr answer = message->cloneForAnswer();
         writeToMessage(serverInformation, answer);
+        transport::tcp::listener().send(answer);
+    }
+}
+
+void Application::command_ChatMessage(const Message::Ptr& message)
+{
+    if (message->type() == Message::Type::Command)
+    {
+        transport::tcp::Socket::List listSockets = transport::tcp::listener().sockets();
+        for (int i = 0; i < listSockets.size(); ++i)
+            if (listSockets[i].socketDescriptor() != message->socketDescriptor())
+                listSockets[i].send(message);
+
+        data::ChatMessage::Ptr chatMessage;
+        readFromMessage(message, chatMessage);
+
+        _historyMessage.append(chatMessage);
+
+        Message::Ptr answer = message->cloneForAnswer();
+        writeToMessage(chatMessage, answer);
+        transport::tcp::listener().send(answer);
+    }
+}
+
+void Application::command_ChatHistory(const Message::Ptr& message)
+{
+    if (message->type() == Message::Type::Command)
+    {
+        data::ChatHistory chatHistory;
+        readFromMessage(message, chatHistory);
+
+        for (int i = 0; i < _historyMessage.size(); ++i)
+            chatHistory.history.append(_historyMessage[i]);
+
+        Message::Ptr answer = message->cloneForAnswer();
+        writeToMessage(chatHistory, answer);
         transport::tcp::listener().send(answer);
     }
 }

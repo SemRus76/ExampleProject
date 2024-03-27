@@ -20,6 +20,7 @@
 #include <QCloseEvent>
 #include <QHostInfo>
 #include <QMessageBox>
+#include <QDateTime>
 
 #include <unistd.h>
 
@@ -39,9 +40,13 @@ public slots:
     void message(const pproto::Message::Ptr&);
 
     void command_ServerInformation(const pproto::Message::Ptr&);
+    void command_ChatMessage      (const pproto::Message::Ptr&);
+    void command_ChatHistory      (const pproto::Message::Ptr&);
 
 private slots:
     void on_btnConnectToServer_clicked();
+
+    void on_btnSendMessage_clicked();
 
 private:
     Ui::MainWindow *ui;
